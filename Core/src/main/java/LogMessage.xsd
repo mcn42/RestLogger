@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:rl="http://mnilsen.org/schema"
+            targetNamespace="http://mnilsen.org/schema" elementFormDefault="qualified">
+  <xsd:complexType name="LogMessage">
+    <xsd:sequence minOccurs="1">
+      <xsd:element name="systemId" type="xsd:string"/>
+      <xsd:element name="subsystemId" type="xsd:string"/>
+      <xsd:element name="deviceId" type="xsd:string"/>
+      <xsd:element name="level" type="xsd:string"/>
+      <xsd:element name="message" type="xsd:string"/>
+      <xsd:element name="timestamp" type="xsd:long"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="MessageList">
+    <xsd:sequence>
+      <xsd:element name="messages" type="rl:LogMessage" minOccurs="0" maxOccurs="unbounded"/>
+    </xsd:sequence>
+  </xsd:complexType>
+</xsd:schema>
