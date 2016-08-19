@@ -1,12 +1,9 @@
 package org.mnilsen.restlogger;
 
 import com.mongodb.MongoClient;
-import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.MongoDatabase;
-import static com.mongodb.client.model.Filters.*;
-import static com.mongodb.client.model.Sorts.*;
 import java.io.StringReader;
 import java.util.HashMap;
 import java.util.logging.Level;
@@ -14,6 +11,7 @@ import java.util.logging.Logger;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
+import javax.ws.rs.Consumes;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
@@ -109,7 +107,9 @@ public class LogResource {
 
     @PUT
     @Path("/write")
-    public Response eriteMessage(LogMessage lm) {
+    @Consumes("application/xml")
+    public Response writeMessage(LogMessage lm) {
+        
         return Response.ok().build();
     }
 
