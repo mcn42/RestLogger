@@ -1,0 +1,7 @@
+#surefire
+#Fri Aug 19 11:24:56 EDT 2016
+maven.ext.class.path=/Applications/NetBeans/NetBeans 8.1.app/Contents/Resources/NetBeans/java/maven-nblib/netbeans-eventspy.jar\:/Applications/NetBeans/NetBeans 8.1.app/Contents/Resources/NetBeans/java/maven-nblib/netbeans-cos.jar\:/Applications/NetBeans/NetBeans 8.1.app/Contents/Resources/NetBeans/java/maven-nblib/netbeans-cos.jar
+user.dir=/Users/michaeln/NetBeansProjects/RestLogger/Client
+localRepository=/Users/michaeln/.m2/repository
+basedir=/Users/michaeln/NetBeansProjects/RestLogger/Client
+test=org.mnilsen.restlogger.client.**.*Test

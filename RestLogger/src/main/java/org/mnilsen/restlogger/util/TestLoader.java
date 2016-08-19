@@ -24,7 +24,7 @@ public class TestLoader {
     private MongoCollection collection = null;
 
     public TestLoader() {
-        this.client = new MongoClient();
+        this.client = new MongoClient("10.0.0.39");
         this.database = this.client.getDatabase("rest_logger");
         this.collection = this.database.getCollection("messages");
     }

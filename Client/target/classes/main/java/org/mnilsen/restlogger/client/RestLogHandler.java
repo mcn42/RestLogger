@@ -12,6 +12,7 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.logging.ErrorManager;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
@@ -38,7 +39,7 @@ public class RestLogHandler extends Handler {
         try {
             this.url = new URL(logUrl);
         } catch (MalformedURLException ex) {
-            this.getErrorManager().error("Bad URL in RestLogHandler: " + this.logUrl, ex, 1);
+            this.getErrorManager().error("Bad URL in RestLogHandler: " + this.logUrl, ex, ErrorManager.OPEN_FAILURE);
             return;
         }
         this.valid = true;
@@ -46,14 +47,19 @@ public class RestLogHandler extends Handler {
 
     @Override
     public void publish(LogRecord record) {
-        if(!this.isLoggable(record)) return;
-        if(!this.valid) this.setup();
-        JSONObject jobj = new JSONObject();
-        jobj.append("message", record.getMessage());
-        jobj.append("level", record.getLevel().toString());
-        jobj.append("systemId", record.getLoggerName());
-        jobj.append("timestamp", record.getMillis());
-        
+        try {
+            if(!this.isLoggable(record)) return;
+            if(!this.valid) this.setup();
+            JSONObject jobj = new JSONObject();
+            jobj.append("message", record.getMessage());
+            jobj.append("level", record.getLevel().toString());
+            jobj.append("systemId", record.getLoggerName());
+            jobj.append("timestamp", record.getMillis());
+            
+            this.writeToREST(jobj.toString());
+        } catch (IOException ex) {
+            this.getErrorManager().error("Message write failed", ex, ErrorManager.WRITE_FAILURE);
+        }
     }
 
     @Override
@@ -71,29 +77,19 @@ public class RestLogHandler extends Handler {
     }
 
     private void writeToREST(String json) throws MalformedURLException, IOException {
-        
+        conn = (HttpURLConnection) this.url.openConnection();
         conn.setDoOutput(true);
-        conn.setRequestMethod("POST");
+        conn.setRequestMethod("PUT");
         conn.setRequestProperty("Content-Type", "application/json");
 
         OutputStream os = conn.getOutputStream();
         os.write(json.getBytes());
         os.flush();
 
-        if (conn.getResponseCode() != HttpURLConnection.HTTP_CREATED) {
-            throw new RuntimeException("Failed : HTTP error code : "
-                    + conn.getResponseCode());
+        if (conn.getResponseCode() != HttpURLConnection.HTTP_OK) {
+            this.getErrorManager().error(String.format("Bad response from Logging server: %s",conn.getResponseCode()), null, ErrorManager.WRITE_FAILURE);
         }
-
-        BufferedReader br = new BufferedReader(new InputStreamReader(
-                (conn.getInputStream())));
-
-        String output;
-        System.out.println("Output from Server .... \n");
-        while ((output = br.readLine()) != null) {
-            System.out.println(output);
-        }
-
+        
         conn.disconnect();
     }
 }

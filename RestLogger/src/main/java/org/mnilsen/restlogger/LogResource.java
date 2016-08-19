@@ -1,9 +1,11 @@
 package org.mnilsen.restlogger;
 
+import com.mongodb.BasicDBObject;
 import com.mongodb.MongoClient;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.MongoDatabase;
+import com.mongodb.util.JSON;
 import java.io.StringReader;
 import java.util.HashMap;
 import java.util.logging.Level;
@@ -28,6 +30,7 @@ import org.bson.Document;
 import org.eclipse.persistence.jaxb.JAXBContextFactory;
 import org.eclipse.persistence.jaxb.UnmarshallerProperties;
 import org.json.JSONObject;
+import org.json.JSONString;
 
 import org.mnilsen.restlogger.jaxb.LogMessage;
 import org.mnilsen.restlogger.jaxb.MessageList;
@@ -46,7 +49,7 @@ public class LogResource {
     @PostConstruct
     public void postConstruct() {
         //System.setProperty("javax.xml.bind.context.factory","org.eclipse.persistence.jaxb.JAXBContextFactory");
-        this.client = new MongoClient();
+        this.client = new MongoClient("10.0.0.39");
         this.database = this.client.getDatabase("rest_logger");
         this.collection = this.database.getCollection("messages");
         Class[] classes = new Class[]{LogMessage.class, MessageList.class};
@@ -74,11 +77,13 @@ public class LogResource {
         int limit = 0;
         while (mc.hasNext()) {
             limit++;
-            if(limit > count) break;
+            if (limit > count) {
+                break;
+            }
             Document d = mc.next();
             buff.append(d.toJson());
             buff.append(",");
-            
+
         }
         buff.append("]");
         return buff.toString();
@@ -86,20 +91,22 @@ public class LogResource {
 
     private LogMessage convert(Document d) {
         LogMessage lm = null;
-        if(this.ctx == null) return null;
-        try {                    
+        if (this.ctx == null) {
+            return null;
+        }
+        try {
             // Create the Marshaller Object using the JaxB Context
             Unmarshaller um = ctx.createUnmarshaller();
 
             // Set the Unmarshaller media type to JSON or XML
             um.setProperty(UnmarshallerProperties.MEDIA_TYPE,
                     "application/json");
-            um.setProperty(UnmarshallerProperties.JSON_INCLUDE_ROOT, true);           
+            um.setProperty(UnmarshallerProperties.JSON_INCLUDE_ROOT, true);
 
             System.out.println(String.format("Generated JSON: %s", d.toJson()));
             StreamSource json = new StreamSource(
-				new StringReader(d.toJson()));
-            lm = um.unmarshal(json,LogMessage.class).getValue();
+                    new StringReader(d.toJson()));
+            lm = um.unmarshal(json, LogMessage.class).getValue();
         } catch (JAXBException ex) {
             Logger.getLogger(LogResource.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -110,8 +117,15 @@ public class LogResource {
     @Path("/write")
     @Consumes("application/json")
     public Response writeMessage(String json) {
-        JSONObject jobj = new JSONObject();
-        
+        try {
+            Logger.getLogger(LogResource.class.getName()).info(String.format("Inserting '%s'", json));
+            BasicDBObject bobj = (BasicDBObject) JSON.parse(json);
+            Document d = new Document(bobj);
+            this.collection.insertOne(d);
+        } catch (Exception e) {
+            Logger.getLogger(LogResource.class.getName()).log(Level.SEVERE, "Mongo insert failed", e);
+            return Response.serverError().status(500).build();
+        }
         return Response.ok().build();
     }
 
