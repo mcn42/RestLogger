@@ -27,6 +27,7 @@ import javax.xml.transform.stream.StreamSource;
 import org.bson.Document;
 import org.eclipse.persistence.jaxb.JAXBContextFactory;
 import org.eclipse.persistence.jaxb.UnmarshallerProperties;
+import org.json.JSONObject;
 
 import org.mnilsen.restlogger.jaxb.LogMessage;
 import org.mnilsen.restlogger.jaxb.MessageList;
@@ -107,8 +108,9 @@ public class LogResource {
 
     @PUT
     @Path("/write")
-    @Consumes("application/xml")
-    public Response writeMessage(LogMessage lm) {
+    @Consumes("application/json")
+    public Response writeMessage(String json) {
+        JSONObject jobj = new JSONObject();
         
         return Response.ok().build();
     }

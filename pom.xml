@@ -18,6 +18,13 @@
   <modules>
     <module>Core</module>
     <module>RestLogger</module>
+    <module>Client</module>
   </modules>
-  <dependencies/>
+  <dependencies>
+    <dependency>
+      <groupId>org.json</groupId>
+      <artifactId>json</artifactId>
+      <version>20160212</version>
+    </dependency>
+  </dependencies>
 </project>

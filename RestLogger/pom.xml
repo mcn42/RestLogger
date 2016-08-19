@@ -103,7 +103,7 @@
         </repository>
     </repositories>
     <parent>
-        <relativePath>../pom.xml</relativePath>
+        <relativePath>../RestLogger/pom.xml</relativePath>
         <groupId>RestLogger</groupId>
         <artifactId>RestLogger</artifactId>
         <version>1.0-SNAPSHOT</version>
